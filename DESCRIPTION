@@ -1,0 +1,38 @@
+Package: EnsIDHistory
+Type: Package
+Title: Ensembl Stable ID History and Cross-Release Mapping
+Version: 0.99.0
+Authors@R: c(
+    person(
+        "Lachlan", "Baer",
+        email = "baerlachlan@gmail.com",
+        role = c("aut", "cre"),
+        comment = c(ORCID = "0000-0001-5213-3401")
+    )
+  )
+Description: Tools to query Ensembl stable ID history using the
+    public Ensembl MySQL server or the Ensembl REST Archive API.
+    Provides functions to retrieve the mapping history of Ensembl
+    gene, transcript, and protein identifiers between releases,
+    identify retired IDs, and update IDs to a target release.
+License: GPL-3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Config/testthat/edition: 3
+BugReports: https://github.com/baerlachlan/EnsIDHistory/issues
+URL: https://github.com/baerlachlan/EnsIDHistory
+BiocType: Software
+biocViews: Annotation
+VignetteBuilder: knitr
+Depends:
+    R (>= 4.5)
+Imports:
+    DBI,
+    RMariaDB,
+    tibble,
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown,
+    BiocStyle,
