@@ -24,10 +24,48 @@ ensCurrentRelease <- function(
         rest_server = "https://rest.ensembl.org"
 ) {
 
-    req <- httr2::request(paste0(rest_server, "/info/data"))
+    req <- httr2::request(rest_server)
+    req <- httr2::req_url_path_append(req, "info/data")
     req <- httr2::req_headers(req, Accept = "application/json")
-    resp <- httr2::req_perform(req)
+    req <- httr2::req_user_agent(req, "EnsIDHistory (https://github.com/baerlachlan/EnsIDHistory)")
+    resp <- try(httr2::req_perform(req), silent = TRUE)
+
+    if (inherits(resp, "try-error")) {
+        warning(
+            "Failed to query Ensembl REST server for /info/data; returning NA.",
+            call. = FALSE
+        )
+        return(NA_integer_)
+    }
+
+    status <- httr2::resp_status(resp)
+    if (status >= 400L) {
+        warning(
+            sprintf(
+                paste0(
+                    "Ensembl REST /info/data returned",
+                    "HTTP status %d; returning NA."
+                ),
+                status
+            ),
+            call. = FALSE
+        )
+        return(NA_integer_)
+    }
+
     info <- httr2::resp_body_json(resp, simplifyVector = TRUE)
-    as.integer(max(info$releases))
+
+    if (!is.null(info$releases)) {
+        return(as.integer(max(info$releases)))
+    } else if (!is.null(info$release)) {
+        return(as.integer(info$release))
+    } else {
+        warning(
+            "Could not find 'releases' or 'release' in Ensembl",
+            " /info/data response; returning NA.",
+            call. = FALSE
+        )
+        return(NA_integer_)
+    }
 
 }

@@ -7,13 +7,13 @@
 ensIDHist(
   ids,
   species,
-  release,
   build,
+  db_release,
+  backend = c("mysql", "rest"),
   mysql_host = "ensembldb.ensembl.org",
   mysql_user = "anonymous",
   mysql_port = 3306L,
-  rest_server = "https://rest.ensembl.org",
-  ...
+  rest_server = "https://rest.ensembl.org"
 )
 }
 \arguments{
@@ -24,11 +24,15 @@ ensIDHist(
 core database name as
 \verb{<species>_core_<release>_<build>}.}
 
-\item{release}{Integer. Ensembl release number (e.g. \code{113}) for the
-MySQL backend.}
-
 \item{build}{Integer. Assembly/build number suffix (e.g. \code{38} for GRCh38)
 for the MySQL backend.}
+
+\item{db_release}{Integer. Ensembl release number (e.g. \code{113}) for the
+MySQL backend.}
+
+\item{backend}{tmp.#' @param backend Character scalar.
+Backend to use for the query. Currently only \code{"mysql"} is implemented.
+\code{"rest"} is reserved for a future Ensembl REST Archive API backend.}
 
 \item{mysql_host}{MySQL host for the Ensembl core DB
 (default \code{"ensembldb.ensembl.org"}).}
@@ -39,8 +43,6 @@ for the MySQL backend.}
 
 \item{rest_server}{Base URL for the REST API
 (default \code{"https://rest.ensembl.org"}).}
-
-\item{...}{Passed on to backend-specific helpers.}
 }
 \value{
 A tibble with at least the columns:
@@ -50,7 +52,6 @@ A tibble with at least the columns:
 \item{old_release}{Source Ensembl release.}
 \item{new_release}{Target Ensembl release.}
 \item{score}{Mapping score (MySQL backend only).}
-\item{backend}{Backend used: \code{"mysql"} or \code{"rest"}.}
 }
 }
 \description{

@@ -1,58 +1,55 @@
 .connectMySQL <- function(
         species,
-        release,
         build,
-        host = "ensembldb.ensembl.org",
-        user = "anonymous",
-        port = 3306L
+        db_release,
+        mysql_host = "ensembldb.ensembl.org",
+        mysql_user = "anonymous",
+        mysql_port = 3306L
 ) {
 
-    if (missing(release) || missing(build)) {
+    if (missing(build)) {
         stop(
-            paste0(
-                "`release` and `build` must be supplied to construct",
-                "the core DB name."),
+            paste0("`build` must be specified to construct the core DB name."),
             call. = FALSE
         )
     }
 
     species_db_prefix <- tolower(gsub(" ", "_", species))
-
-    dbname <- sprintf("%s_core_%d_%d", species_db_prefix, as.integer(release), as.integer(build))
-
-    con <- DBI::dbConnect(
-        RMariaDB::MariaDB(),
-        host     = host,
-        user     = user,
-        password = "",
-        port     = port,
-        dbname   = dbname
+    dbname <- sprintf(
+        "%s_core_%d_%d",
+        species_db_prefix, as.integer(db_release), as.integer(build)
     )
 
-    con
+    DBI::dbConnect(
+        RMariaDB::MariaDB(),
+        host = mysql_host,
+        user = mysql_user,
+        password = "",
+        port = mysql_port,
+        dbname = dbname
+    )
+
 }
 
 .getHistoryMySQL <- function(
         ids,
         species,
-        release,
         build,
-        host = "ensembldb.ensembl.org",
-        user = "anonymous",
-        port = 3306L
+        db_release,
+        mysql_host = "ensembldb.ensembl.org",
+        mysql_user = "anonymous",
+        mysql_port = 3306L
 ) {
-
+# browser()
     con <- .connectMySQL(
         species = species,
-        release = release,
-        build   = build,
-        host    = host,
-        user    = user,
-        port    = port
+        build = build,
+        db_release = db_release,
+        mysql_host = mysql_host,
+        mysql_user = mysql_user,
+        mysql_port = mysql_port
     )
     on.exit(DBI::dbDisconnect(con), add = TRUE)
-
-    ids <- unique(ids)
 
     ## Chunk to avoid giant IN clauses
     chunks <- split(ids, ceiling(seq_along(ids) / 500L))
@@ -81,9 +78,10 @@
 
     out <- do.call(rbind, res_list)
 
-    if (!nrow(out)) {
-        return(tibble::tibble())
-    }
+    if (!nrow(out)) return(tibble::tibble())
+
+    out$old_release <- as.numeric(out$old_release)
+    out$new_release <- as.numeric(out$new_release)
 
     tibble::tibble(out)
 

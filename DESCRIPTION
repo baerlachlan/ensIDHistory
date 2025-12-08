@@ -29,6 +29,7 @@ Depends:
     R (>= 4.5)
 Imports:
     DBI,
+    httr2,
     RMariaDB,
     tibble,
 Suggests:

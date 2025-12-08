@@ -2,67 +2,73 @@
 #'
 #' @param ids Character vector of Ensembl stable IDs.
 #' @param species Character; species name.
-#' @param release Integer; target Ensembl release number.
 #' @param build Integer; target assembly/build number (e.g. `38` for GRCh38).
+#' @param to_release Integer; target Ensembl release number.
 #' @inheritParams ensIDHist
 #'
-#' @return A tibble with columns `input_id`, `target_id`, `target_release`,
-#'   `score`, `mapping_status`.
+#' @return A tibble with columns `old_stable_id`, `new_stable_id`,
+#'  `target_release`, `status`.
 #'
 #' @export
 ensToRelease <- function(
-        ids,
-        species,
-        release,
-        build,
-        mysql_host = "ensembldb.ensembl.org",
-        mysql_user = "anonymous",
-        mysql_port = 3306L
+        ids, species, build, to_release = db_release,
+        db_release = ensCurrentRelease(), mysql_host = "asiadb.ensembl.org",
+        mysql_user = "anonymous", mysql_port = 3306L
 ) {
-    policy <- match.arg(policy)
-
-    if (missing(release) || missing(build)) {
-        stop("'release' and 'build' must be specified.", call. = FALSE)
-    }
-
-    hist <- .getHistoryMySQL(
-        ids     = ids,
-        species = species,
-        release = release,
-        build   = build,
-        host    = mysql_host,
-        user    = mysql_user,
-        port    = mysql_port
+    hist <- ensIDHist(
+        ids, species, build, db_release, mysql_host, mysql_user, mysql_port
     )
 
-    if (!nrow(hist)) {
-        return(tibble::tibble())
-    }
-
-    # At this point hist$new_release should be the provided release;
-    # we keep the filter for safety / future flexibility.
-    hist <- dplyr::filter(hist, .data$new_release == release)
-
-    if (!nrow(hist)) {
-        return(tibble::tibble())
-    }
-
-    if (policy == "best_score") {
-        hist <- hist %>%
-            dplyr::group_by(.data$old_stable_id) %>%
-            dplyr::slice_max(.data$score, n = 1, with_ties = FALSE) %>%
-            dplyr::ungroup()
-    }
-
-    dplyr::transmute(
-        hist,
-        input_id       = .data$old_stable_id,
-        target_id      = .data$new_stable_id,
-        target_release = .data$new_release,
-        score          = .data$score,
-        mapping_status = dplyr::case_when(
-            is.na(.data$new_stable_id) ~ "retired",
-            TRUE                       ~ "mapped"
-        )
+    ## Base output, one row per input id
+    out <- tibble::tibble(
+        old_stable_id = ids, new_stable_id = NA_character_,
+        target_release = NA_integer_, status = NA_character_
     )
+
+    ## IDs that appear in history at all
+    has_any_history <- out$old_stable_id %in% hist$old_stable_id
+
+    ## Filter to mappings with new_release <= to_release
+    hist_eligible <- hist[hist$new_release <= to_release, , drop = FALSE]
+
+    ## For each old_stable_id, keep the entry closest to but not
+    ## exceeding `to_release`
+    if (nrow(hist_eligible) > 0L) {
+        hist_split <- split(hist_eligible, hist_eligible$old_stable_id)
+        hist_best_list <- lapply(hist_split, function(x) {
+            max_rel <- max(x$new_release)
+            x[x$new_release == max_rel, , drop = FALSE][1L, ]
+        })
+        hist_best <- do.call(rbind, hist_best_list)
+
+        ## Align best mappings back to the original order of ids
+        idx <- match(out$old_stable_id, hist_best$old_stable_id)
+        has_best <- !is.na(idx)
+
+        if (any(has_best)) {
+            out$new_stable_id[has_best] <- hist_best$new_stable_id[
+                idx[has_best]
+            ]
+            out$target_release[has_best] <- hist_best$new_release[
+                idx[has_best]
+            ]
+        }
+
+        ## Retired if we have a best row but new_stable_id is NA
+        is_retired <- has_best & is.na(out$new_stable_id)
+        is_mapped <- has_best & !is_retired
+
+    } else {
+        ## No eligible history under the to_release constraint
+        has_best <- rep(FALSE, length(ids))
+        is_retired <- rep(FALSE, length(ids))
+        is_mapped <- rep(FALSE, length(ids))
+    }
+
+    out$status[!has_any_history] <- "unmapped_no_history"
+    out$status[has_any_history & !has_best] <- "unmapped_no_release"
+    out$status[is_retired] <- "unmapped_retired"
+    out$status[is_mapped] <- "mapped"
+
+    out
 }

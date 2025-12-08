@@ -7,9 +7,10 @@
 ensToRelease(
   ids,
   species,
-  release,
   build,
-  mysql_host = "ensembldb.ensembl.org",
+  to_release = db_release,
+  db_release = ensCurrentRelease(),
+  mysql_host = "asiadb.ensembl.org",
   mysql_user = "anonymous",
   mysql_port = 3306L
 )
@@ -19,9 +20,12 @@ ensToRelease(
 
 \item{species}{Character; species name.}
 
-\item{release}{Integer; target Ensembl release number.}
-
 \item{build}{Integer; target assembly/build number (e.g. \code{38} for GRCh38).}
+
+\item{to_release}{Integer; target Ensembl release number.}
+
+\item{db_release}{Integer. Ensembl release number (e.g. \code{113}) for the
+MySQL backend.}
 
 \item{mysql_host}{MySQL host for the Ensembl core DB
 (default \code{"ensembldb.ensembl.org"}).}
@@ -31,8 +35,8 @@ ensToRelease(
 \item{mysql_port}{Integer port (default \code{3306}).}
 }
 \value{
-A tibble with columns \code{input_id}, \code{target_id}, \code{target_release},
-\code{score}, \code{mapping_status}.
+A tibble with columns \code{old_stable_id}, \code{new_stable_id}, \code{target_release},
+\code{mapping_status}.
 }
 \description{
 Map Ensembl IDs to a target Ensembl release
