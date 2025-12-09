@@ -24,7 +24,7 @@ This calls the \verb{/info/data} endpoint on the specified REST server and
 extracts the release number from the returned JSON.
 }
 \examples{
-\dontrun{
+\donttest{
 ensCurrentRelease()
 ensCurrentRelease("https://grch37.rest.ensembl.org")
 }

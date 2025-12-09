@@ -9,7 +9,7 @@
 
     if (missing(build)) {
         stop(
-            paste0("`build` must be specified to construct the core DB name."),
+            "`build` must be specified to construct the core DB name.",
             call. = FALSE
         )
     }
@@ -40,7 +40,7 @@
         mysql_user = "anonymous",
         mysql_port = 3306L
 ) {
-# browser()
+
     con <- .connectMySQL(
         species = species,
         build = build,

@@ -35,8 +35,8 @@ MySQL backend.}
 \item{mysql_port}{Integer port (default \code{3306}).}
 }
 \value{
-A tibble with columns \code{old_stable_id}, \code{new_stable_id}, \code{target_release},
-\code{mapping_status}.
+A tibble with columns \code{old_stable_id}, \code{new_stable_id},
+\code{target_release}, \code{status}.
 }
 \description{
 Map Ensembl IDs to a target Ensembl release

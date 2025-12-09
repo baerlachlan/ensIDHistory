@@ -8,7 +8,7 @@ ensIDHist(
   ids,
   species,
   build,
-  db_release,
+  db_release = ensCurrentRelease(),
   backend = c("mysql", "rest"),
   mysql_host = "ensembldb.ensembl.org",
   mysql_user = "anonymous",

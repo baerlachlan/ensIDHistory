@@ -14,7 +14,7 @@
 #'   `NA_integer_` if it could not be determined.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' ensCurrentRelease()
 #' ensCurrentRelease("https://grch37.rest.ensembl.org")
 #' }
@@ -27,30 +27,27 @@ ensCurrentRelease <- function(
     req <- httr2::request(rest_server)
     req <- httr2::req_url_path_append(req, "info/data")
     req <- httr2::req_headers(req, Accept = "application/json")
-    req <- httr2::req_user_agent(req, "EnsIDHistory (https://github.com/baerlachlan/EnsIDHistory)")
+    req <- httr2::req_user_agent(
+        req,
+        "EnsIDHistory (https://github.com/baerlachlan/EnsIDHistory)"
+    )
     resp <- try(httr2::req_perform(req), silent = TRUE)
 
     if (inherits(resp, "try-error")) {
-        warning(
-            "Failed to query Ensembl REST server for /info/data; returning NA.",
+        stop(
+            "Failed to query Ensembl REST server for /info/data.",
             call. = FALSE
         )
-        return(NA_integer_)
     }
 
     status <- httr2::resp_status(resp)
     if (status >= 400L) {
-        warning(
-            sprintf(
-                paste0(
-                    "Ensembl REST /info/data returned",
-                    "HTTP status %d; returning NA."
-                ),
-                status
-            ),
+        stop(
+            sprintf(c(
+                "Ensembl REST /info/data returned HTTP status %d"
+            ), status),
             call. = FALSE
         )
-        return(NA_integer_)
     }
 
     info <- httr2::resp_body_json(resp, simplifyVector = TRUE)
@@ -60,12 +57,11 @@ ensCurrentRelease <- function(
     } else if (!is.null(info$release)) {
         return(as.integer(info$release))
     } else {
-        warning(
+        stop(
             "Could not find 'releases' or 'release' in Ensembl",
-            " /info/data response; returning NA.",
+            " /info/data response.",
             call. = FALSE
         )
-        return(NA_integer_)
     }
 
 }

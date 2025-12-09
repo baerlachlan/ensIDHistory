@@ -16,7 +16,13 @@ ensToRelease <- function(
         mysql_user = "anonymous", mysql_port = 3306L
 ) {
     hist <- ensIDHist(
-        ids, species, build, db_release, mysql_host, mysql_user, mysql_port
+        ids = ids,
+        species = species,
+        build = build,
+        db_release = db_release,
+        mysql_host = mysql_host,
+        mysql_user = mysql_user,
+        mysql_port = mysql_port
     )
 
     ## Base output, one row per input id
@@ -65,10 +71,15 @@ ensToRelease <- function(
         is_mapped <- rep(FALSE, length(ids))
     }
 
+    ## Split mapped into "unchanged" vs "new"
+    is_mapped_unchanged <- is_mapped & (out$new_stable_id == out$old_stable_id)
+    is_mapped_new <- is_mapped & (out$new_stable_id != out$old_stable_id)
+
     out$status[!has_any_history] <- "unmapped_no_history"
     out$status[has_any_history & !has_best] <- "unmapped_no_release"
     out$status[is_retired] <- "unmapped_retired"
-    out$status[is_mapped] <- "mapped"
+    out$status[is_mapped_unchanged] <- "mapped_unchanged"
+    out$status[is_mapped_new] <- "mapped_new"
 
     out
 }
