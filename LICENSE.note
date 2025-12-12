@@ -1,0 +1,10 @@
+This package includes logic and SQL queries derived from the Ensembl IDmapper.pl script, which is distributed under the Apache License, Version 2.0.
+
+Original work:
+    IDmapper.pl
+    Copyright [1999-2015] Wellcome Trust Sanger Institute and the EMBL-European Bioinformatics Institute
+    Copyright [2016-2024] EMBL-European Bioinformatics Institute
+
+The original license text is available at: http://www.apache.org/licenses/LICENSE-2.0
+
+This package reimplements the functionality of IDmapper.pl in R, with modifications and additional logic.

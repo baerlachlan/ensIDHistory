@@ -56,6 +56,7 @@
 
     res_list <- lapply(chunks, function(x) {
         placeholders <- paste(rep("?", length(x)), collapse = ", ")
+        ## SQL adapted from Ensembl IDmapper.pl (Apache License 2.0)
         sql <- sprintf(
             "SELECT
             sie.old_stable_id,
