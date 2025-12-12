@@ -43,7 +43,7 @@ ensToRelease <- function(
         hist_split <- split(hist_eligible, hist_eligible$old_stable_id)
         hist_best_list <- lapply(hist_split, function(x) {
             max_rel <- max(x$new_release)
-            x[x$new_release == max_rel, , drop = FALSE][1L, ]
+            x[x$new_release == max_rel, , drop = FALSE][1L, ]  # TODO: Investigate edge cases where more than 1 entry is returned
         })
         hist_best <- do.call(rbind, hist_best_list)
 
