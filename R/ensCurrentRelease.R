@@ -29,7 +29,7 @@ ensCurrentRelease <- function(
     req <- httr2::req_headers(req, Accept = "application/json")
     req <- httr2::req_user_agent(
         req,
-        "EnsIDHistory (https://github.com/baerlachlan/EnsIDHistory)"
+        "ensIDHistory (https://github.com/baerlachlan/ensIDHistory)"
     )
     resp <- try(httr2::req_perform(req), silent = TRUE)
 

@@ -1,4 +1,4 @@
-Package: EnsIDHistory
+Package: ensIDHistory
 Type: Package
 Title: Ensembl Stable ID History and Cross-Release Mapping
 Version: 0.99.0
@@ -20,8 +20,8 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Config/testthat/edition: 3
-BugReports: https://github.com/baerlachlan/EnsIDHistory/issues
-URL: https://github.com/baerlachlan/EnsIDHistory
+BugReports: https://github.com/baerlachlan/ensIDHistory/issues
+URL: https://github.com/baerlachlan/ensIDHistory
 BiocType: Software
 biocViews: Annotation
 VignetteBuilder: knitr
